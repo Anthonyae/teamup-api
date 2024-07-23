@@ -1,1 +1,0 @@
-TEAMUP_TOKEN

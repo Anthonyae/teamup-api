@@ -2,14 +2,15 @@
 This module provides functions for managing resources in TeamUp (calendar app).
 """
 
-from dotenv import load_dotenv
 import json
 import os
-from enum import Enum
-import requests
-from dataclasses import dataclass, field, asdict
-from typing import List, Optional, Union, Dict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional, Union
+
+import requests
+from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env")
 
@@ -19,7 +20,9 @@ MAIN_CALENDAR_IDENTIFIER = "zrqurm"
 TEAMUP_TOKEN = os.getenv("TEAMUP_TOKEN")
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 if not TEAMUP_TOKEN or not BEARER_TOKEN:
-    raise EnvironmentError("Required enviromnet varialbes TEAMUP_TOKEN or BEARER_TOKEN not set.")
+    raise EnvironmentError(
+        "Required enviromnet varialbes TEAMUP_TOKEN or BEARER_TOKEN not set."
+    )
 
 
 class UtilityFile:
@@ -59,18 +62,12 @@ class UtilityFile:
             ) from e
 
 
-class RecurringDeletion(Enum):
-    SINGLE = "single"
-    FUTURE = "future"
-    ALL = "all"
-
-
 class TeamUP:
     """
     Returns an object for interacting with the TeamUP.
     """
 
-    BASE_URL = "https://api.teamup.com/"
+    _BASE_URL = "https://api.teamup.com/"
 
     def __init__(self):
         self.headers = {
@@ -80,8 +77,10 @@ class TeamUP:
         }
 
     def _request(self, method: str, resource: str, **kwargs) -> dict:
-        url = self.BASE_URL + resource
-        response = requests.request(method=method, url=url, headers=self.headers, **kwargs)
+        url = self._BASE_URL + resource
+        response = requests.request(
+            method=method, url=url, headers=self.headers, **kwargs
+        )
         try:
             response.raise_for_status()
             return response.json()
@@ -114,7 +113,9 @@ class TeamUP:
         """Returns children calendars for given calendar id."""
         return self.get(f"{calendar_key_or_id}/subcalendars")["subcalendars"]
 
-    def get_subcalendar_by_name(self, calendar_key_or_id: str, calendar_name: str) -> int:
+    def get_subcalendar_by_name(
+        self, calendar_key_or_id: str, calendar_name: str
+    ) -> int:
         """
         Returns subcalendar_id for the given calendar_name under the main_calendar_K_ID provided.
         """
@@ -124,7 +125,9 @@ class TeamUP:
                 return sub_calendar["id"]
         return None
 
-    def get_calendar_events(self, calendar_key_or_id: str, query: dict = None) -> list[dict]:
+    def get_calendar_events(
+        self, calendar_key_or_id: str, query: dict = None
+    ) -> list[dict]:
         """
         Returns events for today if date range not given.
 
@@ -140,12 +143,19 @@ class TeamUP:
         self, calendar_key_or_id: str, calendar_event: "CalendarEvent"
     ) -> dict:
         """
-        Crates event for specified calendar, provided the CalendarEvent object.
+        Creates event for specified calendar, provided the CalendarEvent object.
         """
+        if not isinstance(calendar_event, self.CalendarEvent):
+            raise Exception(
+                "The method create_calendar_event requires a CalendarEvent object."
+            )
         return self.post(f"{calendar_key_or_id}/events", data=calendar_event.to_dict())
 
     def delete_calendar_event(
-        self, calendar_key_or_id: str, event_id: str, recuring_deletion: RecurringDeletion = None
+        self,
+        calendar_key_or_id: str,
+        event_id: str,
+        recuring_deletion: "RecurringDeletion" = None,
     ) -> int:
         """
         Deletes an event from the specified calendar.
@@ -153,50 +163,67 @@ class TeamUP:
         Returns: undo_id for this deletion action.
         """
         params = {"reddit": recuring_deletion.value if recuring_deletion else None}
-        return self.delete(resource=f"{calendar_key_or_id}/events/{event_id}", params=params)[
-            "undo_id"
-        ]
+        return self.delete(
+            resource=f"{calendar_key_or_id}/events/{event_id}", params=params
+        )["undo_id"]
 
+    @dataclass
+    class CalendarEvent:
+        """
+        Data class used to create events in teamup. By default all parameters are null except:
+            - Required parameters of subcalendar_ids and title. The minimum information required to
+            create an event.
+            - start_dt and end_dt, these are set to be all day events (by default).
 
-@dataclass
-class CalendarEvent:
-    subcalendar_ids: List[int]  # required
-    title: Optional[str]  # required
-    start_dt: datetime = field(
-        default_factory=lambda: datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    )  # required
-    end_dt: datetime = field(
-        default_factory=lambda: datetime.now().replace(
-            hour=23, minute=59, second=59, microsecond=0
-        )
-    )  # required
-    all_day: bool = False
-    rrule: Optional[str] = None
-    notes: Optional[str] = None
-    location: Optional[str] = None
-    who: Optional[str] = None
-    signup_enabled: bool = False
-    comments_enabled: bool = False
-    custom: Optional[Dict[str, Union[str, List[str]]]] = None
+        """
 
-    def to_dict(self):
-        event_dict = asdict(self)
-        # Convert datetime fields to string format
-        if isinstance(event_dict["start_dt"], datetime):
-            event_dict["start_dt"] = event_dict["start_dt"].isoformat()
-        if isinstance(event_dict["end_dt"], datetime):
-            event_dict["end_dt"] = event_dict["end_dt"].isoformat()
-        return event_dict
+        subcalendar_ids: List[int]  # required
+        title: Optional[str]  # required
+        start_dt: datetime = field(
+            default_factory=lambda: datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+        )  # required
+        end_dt: datetime = field(
+            default_factory=lambda: datetime.now().replace(
+                hour=23, minute=59, second=59, microsecond=0
+            )
+        )  # required
+        all_day: bool = False
+        rrule: Optional[str] = None
+        notes: Optional[str] = None
+        location: Optional[str] = None
+        who: Optional[str] = None
+        signup_enabled: bool = False
+        comments_enabled: bool = False
+        custom: Optional[Dict[str, Union[str, List[str]]]] = None
+
+        def to_dict(self):
+            event_dict = asdict(self)
+            # Convert datetime fields to string format
+            if isinstance(event_dict["start_dt"], datetime):
+                event_dict["start_dt"] = event_dict["start_dt"].isoformat()
+            if isinstance(event_dict["end_dt"], datetime):
+                event_dict["end_dt"] = event_dict["end_dt"].isoformat()
+            return event_dict
+
+    class RecurringDeletion(Enum):
+        SINGLE = "single"
+        FUTURE = "future"
+        ALL = "all"
 
 
 x = TeamUP()
 # z = x.get_subcalendars(MAIN_CALENDAR_IDENTIFIER)
 # z = x.get_subcalendar_by_name(calendar_key_or_id=MAIN_CALENDAR_IDENTIFIER, "habit")
 # z = x.get_calendar_events(MAIN_CALENDAR_IDENTIFIER)
-# z = x.create_calendar_event(
-#     MAIN_CALENDAR_IDENTIFIER,
-#     CalendarEvent(
-#         [13458686], "testing new creation", datetime(2024, 7, 19, 22), datetime(2024, 7, 19, 23)
-#     ),
-# )
-# z = x.delete_calendar_event(MAIN_CALENDAR_IDENTIFIER, 1714783406, RecurringDeletion.SINGLE)
+z = x.create_calendar_event(
+    MAIN_CALENDAR_IDENTIFIER,
+    TeamUP.CalendarEvent(
+        [13458686],
+        "testing new creation",
+        datetime(2024, 7, 19, 22),
+        datetime(2024, 7, 19, 23),
+    ),
+)
+# z = x.delete_calendar_event(MAIN_CALENDAR_IDENTIFIER, 1714783406)
