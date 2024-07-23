@@ -79,7 +79,7 @@ class TeamUP:
     def _request(self, method: str, resource: str, **kwargs) -> dict:
         url = self._BASE_URL + resource
         response = requests.request(
-            method=method, url=url, headers=self.headers, **kwargs
+            method=method, url=url, headers=self.headers, timeout=20.00, **kwargs
         )
         try:
             response.raise_for_status()
@@ -146,7 +146,7 @@ class TeamUP:
         Creates event for specified calendar, provided the CalendarEvent object.
         """
         if not isinstance(calendar_event, self.CalendarEvent):
-            raise Exception(
+            raise BaseException(
                 "The method create_calendar_event requires a CalendarEvent object."
             )
         return self.post(f"{calendar_key_or_id}/events", data=calendar_event.to_dict())
