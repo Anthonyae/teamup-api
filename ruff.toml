@@ -1,0 +1,12 @@
+# Enable flake8-bugbear (`B`) rules.
+select = ["E", "F", "B", "ERA"]
+
+ignore = ["E501"]
+
+unfixable = ["B"]
+
+line-length = 99
+
+[pre-file-ignores]
+"__ini__.py" = ["E402"]
+"path/to/file.py" = ["E402"]
