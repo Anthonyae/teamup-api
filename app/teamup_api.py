@@ -215,7 +215,7 @@ class TeamUP:
 
 def add_numbers(a: int, b: int) -> int:
     """
-    Test doc string
+    Test doc string.
     """
     return a + b
 
