@@ -18,6 +18,8 @@ repos:
           ^example/_*.csv
           )
       - id: check-symlinks
+      - id: no-commit-to-branch
+        args: ["--branch=main"]
       - id: requirements-txt-fixer
       - id: forbid-new-submodules
       - id: detect-aws-credentials
