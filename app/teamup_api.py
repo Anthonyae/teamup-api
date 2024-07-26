@@ -213,6 +213,10 @@ class TeamUP:
         ALL = "all"
 
 
+def add_numbers(a: int, b: int) -> int:
+    return a + b
+
+
 x = TeamUP()
 # z = x.get_subcalendars(MAIN_CALENDAR_IDENTIFIER)
 # z = x.get_subcalendar_by_name(calendar_key_or_id=MAIN_CALENDAR_IDENTIFIER, "habit")
