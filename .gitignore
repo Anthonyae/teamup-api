@@ -7,3 +7,4 @@
 .mypy*
 tempCodeRunnerFile*
 temp*.env
+.ruff_cache
