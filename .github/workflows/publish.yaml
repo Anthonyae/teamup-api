@@ -21,7 +21,7 @@ jobs:
       - run: |
           /bin/bash run.sh install
           /bin/bash run.sh build
-          /bin/bash run.sh publish:test
+        # /bin/bash run.sh publish:test
         # env:
         #   TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
 
@@ -60,10 +60,6 @@ jobs:
         env:
           MATRIX_CONTEXT: ${{ toJson(matrix) }}
         run: echo "$MATRIX_CONTEXT"
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJson(secrets) }}
-        run: echo "$STRATEGY_CONTEXT"
       - name: Dump matrix context
         env:
           MATRIX_CONTEXT: ${{ toJson(vars) }}
