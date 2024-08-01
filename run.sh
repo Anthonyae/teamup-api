@@ -18,10 +18,18 @@ function build {
     python -m build --sdist --wheel "$THIS_DIR/"
 }
 
-function load-dotenv {
-    while read -r line; do
-        export "$line"
+function try-load-dotenv {
+    [ -f "${THIS_DIR}/.env" ] || (echo "no .env file found" && return 1)
+    while IFS='=' read -r key value; do
+        # Ignore empty lines and lines starting with #
+        if [[ -n "$key" && "$key" != \#* ]]; then
+            export "$key=$value"
+        fi
     done < <(grep -v '^#' "$THIS_DIR/.env" | grep -v '^$')
+}
+
+function lint:ci {
+    SKIP=no-commit-to-branch pre-commit run --all-files
 }
 
 function release:test {
@@ -37,7 +45,7 @@ function release:prod {
 }
 
 function publish:test {
-    load-dotenv
+    try-load-dotenv || true
     twine upload dist/* \
     --repository testpypi \
     --username=__token__ \
@@ -45,7 +53,7 @@ function publish:test {
 }
 
 function publish:prod {
-    load-dotenv
+    try-load-dotenv || true
     twine upload dist/* \
     --repository pypi \
     --username=__token__ \

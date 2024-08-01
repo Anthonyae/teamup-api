@@ -2,8 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+
 [project]
-version = "0.0.2"
+dynamic = ['version']
 name = "py-teamup-api"
 authors = [{ name = "Tony", email = "cordial.egg1739@fastmail.com" }]
 description = "A package for managing Teamup's resources."
@@ -22,3 +23,6 @@ test = ["pytest", "pytest-cov"]
 static-code-qa = ['pre-commit']
 release = ["build", "twine"]
 dev = ["py-teamup-api[test, release, static-code-qa]"]
+
+[tool.hatch.version]
+path = "version.txt"

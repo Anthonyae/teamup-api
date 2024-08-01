@@ -90,15 +90,19 @@ class TeamUP:
             ) from e
 
     def get(self, resource: str, params=None) -> dict:
+        """General request"""
         return self._request(method="GET", resource=resource, params=params)
 
     def put(self, resource: str, params=None) -> dict:
+        """General request"""
         return self._request(method="PUT", resource=resource, params=params)
 
     def delete(self, resource: str, params=None) -> dict:
+        """General request"""
         return self._request(method="DELETE", resource=resource, params=params)
 
     def post(self, resource: str, params: dict = None, data: dict = None) -> dict:
+        """General request"""
         return self._request(method="POST", resource=resource, params=params, json=data)
 
     def get_calendar(self, calendar_key_or_id: int) -> dict:
