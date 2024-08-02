@@ -10,3 +10,5 @@
 .mypy*
 tempCodeRunnerFile*
 .ruff_cache
+htmlcov*
+dist*

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 
 [project]
-dynamic = ['version']
+version = '0.0.4'
 name = "py-teamup-api"
 authors = [{ name = "Tony", email = "cordial.egg1739@fastmail.com" }]
 description = "A package for managing Teamup's resources."
@@ -20,9 +20,10 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
-static-code-qa = ['pre-commit']
+static-code-qa = ['pre-commit', 'pytest']
 release = ["build", "twine"]
 dev = ["py-teamup-api[test, release, static-code-qa]"]
 
-[tool.hatch.version]
-path = "version.txt"
+
+[tool.pytest.ini_options]
+markers = ["slow: marks test as slow (deselect with '-m \"not slow:"]

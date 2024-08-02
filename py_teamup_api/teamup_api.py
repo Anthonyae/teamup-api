@@ -18,10 +18,10 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 MAIN_CALENDAR_IDENTIFIER = "zrqurm"
 
 TEAMUP_TOKEN = os.getenv("TEAMUP_TOKEN")
-TEAMUP_BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+TEAMUP_BEARER_TOKEN = os.getenv("TEAMUP_BEARER_TOKEN")
 if not TEAMUP_TOKEN or not TEAMUP_BEARER_TOKEN:
     raise EnvironmentError(
-        "Required enviromnet varialbes TEAMUP_TOKEN or BEARER_TOKEN not set."
+        "Required environment variables TEAMUP_TOKEN or BEARER_TOKEN not set."
     )
 
 
@@ -224,17 +224,18 @@ def add_numbers(a: int, b: int) -> int:
     return a + b
 
 
-x = TeamUP()
-# z = x.get_subcalendars(MAIN_CALENDAR_IDENTIFIER)
-# z = x.get_subcalendar_by_name(calendar_key_or_id=MAIN_CALENDAR_IDENTIFIER, "habit")
-# z = x.get_calendar_events(MAIN_CALENDAR_IDENTIFIER)
-z = x.create_calendar_event(
-    MAIN_CALENDAR_IDENTIFIER,
-    TeamUP.CalendarEvent(
-        [13458686],
-        "testing new creation",
-        datetime(2024, 7, 19, 22),
-        datetime(2024, 7, 19, 23),
-    ),
-)
-# z = x.delete_calendar_event(MAIN_CALENDAR_IDENTIFIER, 1714783406)
+if __name__ == "__main__":
+    x = TeamUP()
+    # z = x.get_subcalendars(MAIN_CALENDAR_IDENTIFIER)
+    # z = x.get_subcalendar_by_name(calendar_key_or_id=MAIN_CALENDAR_IDENTIFIER, "habit")
+    # z = x.get_calendar_events(MAIN_CALENDAR_IDENTIFIER)
+    z = x.create_calendar_event(
+        MAIN_CALENDAR_IDENTIFIER,
+        TeamUP.CalendarEvent(
+            [13458686],
+            "testing new creation",
+            datetime(2024, 7, 19, 22),
+            datetime(2024, 7, 19, 23),
+        ),
+    )
+    # z = x.delete_calendar_event(MAIN_CALENDAR_IDENTIFIER, 1714783406)

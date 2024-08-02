@@ -14,6 +14,18 @@ function lint {
     pre-commit run --all-files
 }
 
+function test {
+        PYTEST_EXIT_STATUS=0
+        python -m pytest "${@:-$THIS_DIR/tests/}" \
+        --cov="$THIS_DIR/py_teamup_api" \
+        --cov-report=html \
+        --cov-report=term \
+        --cov-fail-under=40 || ((PYTEST_EXIT_STATUS+=$?))
+        return $PYTEST_EXIT_STATUS
+
+}
+
+
 function build {
     python -m build --sdist --wheel "$THIS_DIR/"
 }
@@ -32,9 +44,46 @@ function lint:ci {
     SKIP=no-commit-to-branch pre-commit run --all-files
 }
 
+function test:ci:locally {
+    deactivate || true
+    rm -rf test-env || true
+    python -m venv test-env
+    . test-env/bin/activate
+    clean
+    pip install build
+    build
+
+    PYTEST_EXIT_STATUS=0
+    pip install ./dist/*.whl
+    
+    test:ci
+
+    deactivate
+    return $PYTEST_EXIT_STATUS
+
+}
+
+function test:ci {
+    PYTEST_EXIT_STATUS=0
+    INSTALLED_PKG_DIR="$(python -c 'import py_teamup_api; print(py_teamup_api.__path__[0])')"
+    python -m pytest "${@:-$THIS_DIR/tests/}" \
+    --cov "$INSTALLED_PKG_DIR" \
+    --cov-report=html \
+    --cov-report=term \
+    --cov-fail-under=40 || ((PYTEST_EXIT_STATUS+=$?))
+
+    return $PYTEST_EXIT_STATUS
+
+}
+
+function serve:test {
+    python -m http.server --directory "${THIS_DIR}/htmlcov/"
+}
+
 function release:test {
     lint
     clean
+    test
     build
     publish:test
 }
@@ -68,6 +117,7 @@ function clean {
        -name "*cache*" \
        -o -name "*.dist-info" \
        -o -name "*.egg-info" \
+       -o -name "*htmlcov" \
        \) \
        -not -path "./venv/*" \
        -not -path "./.venv/*" \
@@ -78,10 +128,6 @@ function clean {
 
 function start {
     echo "start not implemented"
-}
-
-function test {
-    echo "test not implement"
 }
 
 function default {

@@ -19,23 +19,27 @@ jobs:
       - name: Tag with the release version
         run: |
           git tag $(cat version.txt)
-
+    
 
   lint-format-and-static-qa:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: format and lint
+      - name: Setup Python
         uses: actions/setup-python@v3
         with:
           python-version: 3.12
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/.pre-commit-config.yaml') }}
       - name: install pre-commit
         run: |
           pip install pre-commit
       - name: lint, format, and other static code quality checks
         run: |
           /bin/bash -x run.sh lint:ci
-
+ 
 
   build:
     runs-on: ubuntu-latest
@@ -59,9 +63,34 @@ jobs:
           name: python package
           path: ./dist/*
 
+    
+  execute_tests:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12
+
+      - name: Download wheel and sdist
+        uses: actions/download-artifact@v4
+        with:
+          name: python package
+          path: ./dist/
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-cov ./dist/*.whl
+      - name: lint, format, and other static code quality checks
+        run: |
+          /bin/bash -x run.sh test:ci
+
 
   publish:
     needs:
+      - execute_tests
       - build
       - lint-format-and-static-qa
       - check-version-txt
