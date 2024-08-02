@@ -18,10 +18,10 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 MAIN_CALENDAR_IDENTIFIER = "zrqurm"
 
 TEAMUP_TOKEN = os.getenv("TEAMUP_TOKEN")
-BEARER_TOKEN = os.getenv("BEARER_TOKEN")
-if not TEAMUP_TOKEN or not BEARER_TOKEN:
+TEAMUP_BEARER_TOKEN = os.getenv("TEAMUP_BEARER_TOKEN")
+if not TEAMUP_TOKEN or not TEAMUP_BEARER_TOKEN:
     raise EnvironmentError(
-        "Required enviromnet varialbes TEAMUP_TOKEN or BEARER_TOKEN not set."
+        "Required environment variables TEAMUP_TOKEN or BEARER_TOKEN not set."
     )
 
 
@@ -73,7 +73,7 @@ class TeamUP:
         self.headers = {
             "Teamup-Token": TEAMUP_TOKEN,
             "Accept": "application/json",
-            "Authorization": f"Bearer {BEARER_TOKEN}",
+            "Authorization": f"Bearer {TEAMUP_BEARER_TOKEN}",
         }
 
     def _request(self, method: str, resource: str, **kwargs) -> dict:
@@ -90,15 +90,19 @@ class TeamUP:
             ) from e
 
     def get(self, resource: str, params=None) -> dict:
+        """General request"""
         return self._request(method="GET", resource=resource, params=params)
 
     def put(self, resource: str, params=None) -> dict:
+        """General request"""
         return self._request(method="PUT", resource=resource, params=params)
 
     def delete(self, resource: str, params=None) -> dict:
+        """General request"""
         return self._request(method="DELETE", resource=resource, params=params)
 
     def post(self, resource: str, params: dict = None, data: dict = None) -> dict:
+        """General request"""
         return self._request(method="POST", resource=resource, params=params, json=data)
 
     def get_calendar(self, calendar_key_or_id: int) -> dict:
@@ -213,17 +217,25 @@ class TeamUP:
         ALL = "all"
 
 
-x = TeamUP()
-# z = x.get_subcalendars(MAIN_CALENDAR_IDENTIFIER)
-# z = x.get_subcalendar_by_name(calendar_key_or_id=MAIN_CALENDAR_IDENTIFIER, "habit")
-# z = x.get_calendar_events(MAIN_CALENDAR_IDENTIFIER)
-z = x.create_calendar_event(
-    MAIN_CALENDAR_IDENTIFIER,
-    TeamUP.CalendarEvent(
-        [13458686],
-        "testing new creation",
-        datetime(2024, 7, 19, 22),
-        datetime(2024, 7, 19, 23),
-    ),
-)
-# z = x.delete_calendar_event(MAIN_CALENDAR_IDENTIFIER, 1714783406)
+def add_numbers(a: int, b: int) -> int:
+    """
+    Test doc string.
+    """
+    return a + b
+
+
+if __name__ == "__main__":
+    x = TeamUP()
+    # z = x.get_subcalendars(MAIN_CALENDAR_IDENTIFIER)
+    # z = x.get_subcalendar_by_name(calendar_key_or_id=MAIN_CALENDAR_IDENTIFIER, "habit")
+    # z = x.get_calendar_events(MAIN_CALENDAR_IDENTIFIER)
+    z = x.create_calendar_event(
+        MAIN_CALENDAR_IDENTIFIER,
+        TeamUP.CalendarEvent(
+            [13458686],
+            "testing new creation",
+            datetime(2024, 7, 19, 22),
+            datetime(2024, 7, 19, 23),
+        ),
+    )
+    # z = x.delete_calendar_event(MAIN_CALENDAR_IDENTIFIER, 1714783406)

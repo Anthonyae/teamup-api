@@ -1,4 +1,7 @@
 .venv
+*venv
+*env
+*.env
 .env
 .vscode
 *__pycache__*
@@ -6,4 +9,6 @@
 *.csv
 .mypy*
 tempCodeRunnerFile*
-temp*.env
+.ruff_cache
+htmlcov*
+dist*
